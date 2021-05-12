@@ -1,0 +1,166 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cl.bluex.devolucion.mapper.SelectMapper">
+
+	<select id="selectDevolucionClient" resultType="cl.bluex.devolucion.to.ConsultaDevolucionResponse">
+    	select a.LDSL_CDG_SOLICITUD AS numeroRequerimiento, a.LDSL_NOMBRE as nombreCliente, a.LDSL_IDENTIFICADOR as rut, a.LDSL_DESCRIPCION as nombreProducto,
+	   c.ldes_nmb as estadoDevolucion, b.LDMT_DESCRIPCION as motivoDevolucion, a.LDSL_FECHA  as fechaIngresoDevolucion
+	   from ldsl a, ldmt b, ldes c
+	   where a.LDES_CDG = c.ldes_cdg
+	   and a.LDMT_CDG = b.ldmt_cdg
+	   and a.LDSL_CDG_SOLICITUD = #{nroDocto}
+  	</select>
+
+  	<select id="selectMotivo" resultType="cl.bluex.devolucion.to.MotivoResponse">
+    	select LDMT_CDG as codigoMotivo, LDMT_NMB as nombreMotivo from LDMT
+  	</select>
+
+  	<select id = "selectEcommerce" flushCache="true" useCache="false" statementType="CALLABLE" parameterType="java.util.Map">
+		{CALL logdevolucion_clientes_pkg.sel_cliente_all(
+		#{o_cur_cliente, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=eCommerceMap},
+		#{o_error_cdg, mode=OUT, jdbcType=NUMERIC},
+		#{o_error_dsc,  mode=OUT, jdbcType=VARCHAR})}
+	</select>
+	<resultMap id = "eCommerceMap" type = "cl.bluex.devolucion.to.ECommerceResponse">
+		<result property="segEmpresa" column="ldcl_seq_cdg" />
+		<result property="codigoEmpresa" column="empr_cdg" />
+		<result property="rutEmpresa" column="clhl_cdg" />
+		<result property="digRut" column="clhl_scrs" />
+		<result property="cl_cdg" column="tpcl_cdg" />
+		<result property="nombreEmpresa" column="ldcl_alias" />
+		<result property="mail" column="ldcl_email" />
+		<result property="fecha" column="ldcl_fecha" />
+		<result property="estado" column="ldcl_estado" />
+	</resultMap>
+
+  	<select id = "consultaOs" statementType="CALLABLE" parameterType="java.util.Map">
+		{CALL logdevolucion_oservicio_pkg.sel_buscar_orden_servicio(
+		#{i_eevv_nmr_serie, mode=IN, jdbcType=NUMERIC},
+		#{i_ldcl_seq_cdg, mode=IN, jdbcType=NUMERIC},
+		#{i_empr_cdg, mode=IN, jdbcType=NUMERIC},
+		#{i_fevl_cdg, mode=IN, jdbcType=VARCHAR},
+		#{i_fch_ini, mode=IN, jdbcType=VARCHAR},
+		#{i_fch_fin, mode=IN, jdbcType=VARCHAR},
+		#{o_cur_buscar_orden_servicio,    mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=OSMap},
+		#{o_error_cdg, mode=OUT, jdbcType=NUMERIC},
+		#{o_error_dsc,  mode=OUT, jdbcType=VARCHAR})}
+	</select>
+	
+  	<select id = "consultarDocumento" statementType="CALLABLE" parameterType="java.util.Map">
+		{CALL logdevolucion_oservicio_pkg.sel_buscar_orden_servicio(
+		#{i_numero_documento, mode=IN, jdbcType=VARCHAR},
+		#{i_ldcl_seq_cdg, mode=IN, jdbcType=NUMERIC},
+		#{i_empr_cdg, mode=IN, jdbcType=NUMERIC},
+		#{i_fevl_cdg, mode=IN, jdbcType=VARCHAR},
+		#{i_fch_ini, mode=IN, jdbcType=VARCHAR},
+		#{i_fch_fin, mode=IN, jdbcType=VARCHAR},
+		#{o_cur_buscar_orden_servicio,    mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=OSMap},
+		#{o_error_cdg, mode=OUT, jdbcType=NUMERIC},
+		#{o_error_dsc,  mode=OUT, jdbcType=VARCHAR})}
+	</select>	
+	
+	<resultMap id = "OSMap" type = "cl.bluex.devolucion.to.OrdenServicioResponse">
+		<result property="eevv_nmr_id" column="eevv_nmr_id" />
+		<result property="eevv_nmr_serie" column="eevv_nmr_serie" />
+		<result property="oser_fch_creacion" column="oser_fch_creacion" />
+		<result property="oser_nmbr_emba" column="oser_nmbr_emba" />
+		<result property="empr_cdg" column="empr_cdg" />
+		<result property="clhl_cdg_emba" column="clhl_cdg_emba" />
+		<result property="maclhl_scrs_embail" column="maclhl_scrs_embail" />
+		<result property="tpcl_cdg_emba" column="tpcl_cdg_emba" />
+		<result property="oser_direccion_emba" column="oser_direccion_emba" />
+		<result property="psta_cdg_origen" column="psta_cdg_origen" />
+		<result property="psta_dsc_origen" column="psta_dsc_origen" />
+		<result property="oser_nmbr_dest" column="oser_nmbr_dest" />
+		<result property="oser_direccion_dest" column="oser_direccion_dest" />
+		<result property="psta_cdg_destino" column="psta_cdg_destino" />
+		<result property="psta_dsc_destino" column="psta_dsc_destino" />
+		<result property="fecha_retiro" column="fecha_retiro" />
+		<result property="fecha_entrega" column="fecha_entrega" />
+		<result property="macroestado" column="macroestado" />
+		<result property="fecha_macroestado" column="fecha_macroestado" />
+	</resultMap>
+
+
+	<select id = "consultaDevolucionesDasheCommerce" flushCache="true" useCache="false" statementType="CALLABLE" parameterType="java.util.Map">
+		{CALL logdevolucion_solicitud_pkg.sel_solicitud_cliente(
+		#{p_empr_cdg, mode=IN, jdbcType=NUMERIC},
+		#{p_clhl_cdg, mode=IN, jdbcType=NUMERIC},
+		#{p_clhl_scrs, mode=IN, jdbcType=NUMERIC},
+		#{p_tpcl_cdg, mode=IN, jdbcType=NUMERIC},
+		#{p_dias_busqueda, mode=IN, jdbcType=NUMERIC},
+		#{o_cur_solicitud_cliente, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=DevMap},
+		#{o_error_cdg, mode=OUT, jdbcType=NUMERIC},
+		#{o_error_dsc,  mode=OUT, jdbcType=VARCHAR})}
+	</select>
+	<select id = "consultaDevolucionesDasheCommerceFecha" flushCache="true" useCache="false" statementType="CALLABLE" parameterType="java.util.Map">
+		{CALL logdevolucion_solicitud_pkg.sel_solicitud_cliente(
+		#{p_empr_cdg, mode=IN, jdbcType=NUMERIC},
+		#{p_clhl_cdg, mode=IN, jdbcType=NUMERIC},
+		#{p_clhl_scrs, mode=IN, jdbcType=NUMERIC},
+		#{p_tpcl_cdg, mode=IN, jdbcType=NUMERIC},
+		#{p_fecha_ini, mode=IN, jdbcType=VARCHAR},
+		#{p_fecha_fin, mode=IN, jdbcType=VARCHAR},
+		#{o_cur_solicitud_cliente, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=DevMap},
+		#{o_error_cdg, mode=OUT, jdbcType=NUMERIC},
+		#{o_error_dsc,  mode=OUT, jdbcType=VARCHAR})}
+	</select>
+	<resultMap id = "DevMap" type = "cl.bluex.devolucion.to.DevolucionResponse">
+		<result property="codDevolucion" column="LDSL_SEQ_CDG" />
+		<result property="nroRequerimiento" column="LDSL_CDG_SOLICITUD" />
+		<result property="codMotivo" column="LDMT_CDG" />
+		<result property="nombreMotivo" column="LDMT_NMB" />
+		<result property="codEcommerce" column="LDCL_SEQ_CDG" />
+		<result property="eCommerce" column="LDCL_ALIAS" />
+		<result property="codEstadoDevolucion" column="LDES_CDG" />
+		<result property="nombreDevolucion" column="LDES_NMB" />
+		<result property="nombreUsuario" column="LDSL_NOMBRE" />
+		<result property="fechaDevolucion" column="LDSL_FECHA" />
+		<result property="descripProducto" column="LDSL_DESCRIPCION" />
+		<result property="eevvNmrId" column="EEVV_NMR_ID" />
+		<result property="nroOrdenServicio" column="EEVV_NMR_SERIE" />
+		<result property="emprCdg" column="EMPR_CDG" />
+		<result property="clienteCodigo" column="CLHL_CDG" />
+		<result property="clienteSucursal" column="CLHL_SCRS" />
+		<result property="clienteTipo" column="TPCL_CDG" />
+		<result property="emailUsuario" column="LDSL_EMAIL" />
+		<result property="telefono" column="LDSL_TELEFONO" />
+		<result property="identificador" column="LDSL_IDENTIFICADOR" />		
+	</resultMap>
+	
+	<select id="consultaSolicitudEtiqueta" flushCache="true" useCache="false" statementType="CALLABLE" parameterType="java.util.Map">
+		{ call logdevolucion_solicitud_pkg.sel_solicitud_etiqueta (
+			#{p_ldsl_seq_cdg, 			mode=IN,  jdbcType=NUMERIC},
+			#{o_cur_solicitud_etiqueta, mode=OUT, javaType=ResultSet, jdbcType=CURSOR, resultMap=mapSolicitudEtiqueta},
+			#{o_error_cdg, 				mode=OUT, jdbcType=NUMERIC},
+			#{o_error_dsc,  			mode=OUT, jdbcType=VARCHAR}		
+		)}
+	</select>
+	
+	<resultMap type="cl.bluex.devolucion.to.SolicitudEtiquetaTO" id="mapSolicitudEtiqueta">
+		<result property="codigoUsuario" column="USUA_CDG" />
+		<result property="idToken" column="TKUS_CDG" />
+		<result property="codigoPersona" column="PRSO_CDG" />
+		<result property="email" column="LDSL_EMAIL" />
+		<result property="solicitud" column="LDSL_CDG_SOLICITUD" />
+		<result property="codigoEmpresa" column="EMPR_CDG" />
+		<result property="codigoCliente" column="CLHL_CDG" />
+		<result property="codigoSucursal" column="CLHL_SCRS" />
+		<result property="tipoCliente" column="TPCL_CDG" />
+		<result property="alias" column="LDCL_ALIAS" />
+		<result property="nombreEmbalador" column="OSER_NMBR_EMBA" />
+		<result property="direccionEmbalador" column="OSER_DIRECCION_EMBA" />
+		<result property="telefonoEmbalador" column="OSER_FONO_EMBA" />
+		<result property="localidadOrigen" column="PSTA_CDG_ORIGEN" />
+		<result property="regionOrigen" column="RGNS_CDG_ORIGEN" />
+		<result property="comunaOrigen" column="CMNS_CDG_ORIGEN" />
+		<result property="nombreDestinatario" column="OSER_NMBR_DEST" />
+		<result property="direccionDestinatario" column="OSER_DIRECCION_DEST" />
+		<result property="telefonoDestinatario" column="OSER_FONO_DEST" />
+		<result property="localidadDestino" column="PSTA_CDG_DESTINO" />
+		<result property="regionDestino" column="RGNS_CDG_DESTINO" />
+		<result property="comunaDestino" column="CMNS_CDG_DESTINO" />
+		<result property="pesoFisico" column="OSER_PESO_FISICO" />
+		<result property="pesoVolumen" column="OSER_PESO_VOLUMEN" />
+		<result property="cantidadPiezas" column="OSER_CNT_PIEZAS" />	
+	</resultMap>
+</mapper>

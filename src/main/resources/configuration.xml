@@ -1,0 +1,29 @@
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Confi 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+
+<configuration>
+<!-- Parameter setting -->
+	<settings>
+		 <!-- Set the timeout period, which determines when the driver waits for a database response -->
+		<setting name="defaultStatementTimeout" value="2000" />
+	</settings>
+
+    <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC"/>
+            <dataSource type="UNPOOLED">
+                <property name="driver" value="oracle.jdbc.driver.OracleDriver" />
+                <property name="url" value="jdbc:oracle:thin:@//10.81.210.57:1533/cnetqa" />
+                <property name="username" value="uslogdev" />
+                <property name="password" value="qa" />
+            </dataSource>
+        </environment>
+    </environments>
+
+    <mappers>
+        <mapper resource="Select.xml" />
+        <mapper resource="Insert.xml" />
+				<mapper resource="Update.xml" />
+    </mappers>
+
+</configuration>

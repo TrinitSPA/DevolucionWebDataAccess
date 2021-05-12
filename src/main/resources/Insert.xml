@@ -1,0 +1,41 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cl.bluex.devolucion.mapper.InsertMapper">
+
+	<insert id = "insertaDevolucionClient" statementType="CALLABLE" parameterType="java.util.Map">
+		{CALL logdevolucion_solicitud_pkg.ins_solicitud(
+		#{p_ldmt_cdg,  mode=IN, jdbcType=NUMERIC},
+		#{p_ldcl_seq_cdg,  mode=IN, jdbcType=NUMERIC},
+		#{p_ldes_cdg ,  mode=IN, jdbcType=NUMERIC},
+		#{p_ldsl_nombre,  mode=IN, jdbcType=VARCHAR},
+		#{p_ldsl_identificador,  mode=IN, jdbcType=VARCHAR},
+		#{p_ldsl_telefono,  mode=IN, jdbcType=VARCHAR},
+		#{p_ldsl_email,  mode=IN, jdbcType=VARCHAR},
+		#{p_ldsl_descripcion,  mode=IN, jdbcType=VARCHAR},
+		#{p_ldsl_noti_email,  mode=IN, jdbcType=NUMERIC},
+		#{p_ldsl_noti_sms,  mode=IN, jdbcType=NUMERIC},
+		#{p_ldsl_noti_whatsapp,  mode=IN, jdbcType=NUMERIC},
+		#{o_ldsl_cdg_solicitud,  mode=OUT, jdbcType=VARCHAR},
+		#{o_ldsl_seq_cdg,  mode=OUT, jdbcType=NUMERIC},
+		#{o_error_cdg, mode=OUT, jdbcType=NUMERIC},
+		#{o_error_dsc,  mode=OUT, jdbcType=VARCHAR})}
+	</insert>
+
+	<insert id = "insertaOrdenServicio" statementType="CALLABLE" parameterType="java.util.Map">
+		{CALL logdevolucion_oservicio_pkg.ins_orden_servicio(
+		#{p_eevv_nmr_id,  mode=IN, jdbcType=NUMERIC},
+		#{p_ldsl_seq_cdg,  mode=IN, jdbcType=NUMERIC},
+		#{p_ldoe_cdg ,  mode=IN, jdbcType=NUMERIC},
+		#{p_ldos_descripcion,  mode=IN, jdbcType=VARCHAR},
+		#{o_error_cdg, mode=OUT, jdbcType=NUMERIC},
+		#{o_error_dsc,  mode=OUT, jdbcType=VARCHAR})}
+	</insert>
+
+	<insert id = "insertaBitacora" statementType="CALLABLE" parameterType="java.util.Map">
+		{CALL logdevolucion_bitacora_pkg.ins_bitacora(
+		#{p_ldsl_seq_cdg,  mode=IN, jdbcType=NUMERIC},
+		#{p_ldes_cdg,  mode=IN, jdbcType=NUMERIC},
+		#{p_lbdt_descripcion,  mode=IN, jdbcType=VARCHAR},
+		#{o_error_cdg, mode=OUT, jdbcType=NUMERIC},
+		#{o_error_dsc,  mode=OUT, jdbcType=VARCHAR})}
+	</insert>
+</mapper>
